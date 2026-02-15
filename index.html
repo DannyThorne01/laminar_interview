@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Laminar Interview</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+    body { font-family: sans-serif; }
+    .axis path, .axis line { fill: none; stroke: #000; shape-rendering: crispEdges; }
+    .dot { stroke: #000; }
+  </style>
+</head>
+<body>
+
+<div id="dataviz_svg"></div>
+
+<script>
+  d3.json('example.json', function(error, data){
+    var filtered_tank_data = data.filter((d)=>{return (d.tank_name === "Tank 2")  })
+    var clean_filtered_tank_data = filtered_tank_data.map((d)=>({ 
+                                    start: new Date(d.start_time),
+                                      end: new Date(d.end_time),
+                                      water: d.metrics.Water
+                                    }))                                                   
+    // outlining chart dimensions for d3
+    var margin = {top:20, right:20, bottom:20, left:20 }                    
+    var width = 800 - margin.left -margin.right; 
+    var height = 350 - margin.top - margin.bottom; 
+    
+    var svgDV = d3.select("#dataviz_svg")
+                .append("svg")
+                .attr("width", width+margin.right+margin.left)
+                .attr("height", height+margin.top+margin.bottom)
+    
+    // starting point for D3 g tags
+    var starting_pos = svgDV.append("g")
+                        .attr("transform", "translate(" +  margin.left +","+ margin.top + ")")
+    // building our scales and axis
+    var xScale = d3.scaleTime()
+        .domain([
+          d3.min(clean_filtered_tank_data,  d => d.start), 
+          d3.max(clean_filtered_tank_data,  d => d.end)])
+        .range([0,width])
+    var yScale = d3.scaleLinear()
+        .domain([0, d3.max(clean_filtered_tank_data, d=>d.water)])
+        .nice()
+        .range([height,0])
+
+    var xAxis = d3.axisBottom(xScale);
+    var yAxis = d3.axisLeft(yScale);
+    
+    // initialize starting point add the axes
+    var xAxisPan = starting_pos
+      .append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    var yAxisPan = starting_pos
+      .append("g")
+      .attr("class", "axis axis--y")
+      .call(yAxis)
+  
+
+    starting_pos.append("defs")
+      .append("clipPath")
+      .attr("id", "clip")
+      .append("rect")
+      .attr("width", width)
+      .attr("height", height);
+
+    var plotArea = starting_pos.append("g")
+    .attr("clip-path", "url(#clip)");
+     
+    // line segments that will indicate efficiency when zoomed in 
+    var segments = plotArea.selectAll("line.cycle")
+    .data(clean_filtered_tank_data)
+    .enter()
+    .append("line")
+          .attr("class", "cycle")
+          .attr("stroke","black")
+          .attr("stroke-width",2)
+          .attr("x1", d => xScale(d.start)) 
+          .attr("x2", d => xScale(d.end))
+          .attr("y1", d => yScale(d.water))
+          .attr("y2", d => yScale(d.water));
+    // dots that will indicate efficiency when zoomed out
+    var dots = plotArea.selectAll("circle.dot")
+    .data(clean_filtered_tank_data)
+    .enter()
+    .append("circle")
+    .attr("class", "dot")
+    .attr("r", 5)
+    .attr("cx", d => xScale(d.start))
+    .attr("cy", d => yScale(d.water))
+    .style("display", "none"); 
+
+    function zoomed(){
+      var t = d3.event.transform;
+      var xRescale = t.rescaleX(xScale);
+
+      xAxisPan.call(xAxis.scale(xRescale))
+      segments
+    .attr("x1", d => xRescale(d.start))
+    .attr("x2", d => xRescale(d.end));
+
+  dots
+    .attr("cx", d => xRescale(d.start));
+      if (t.k < 10) {
+        segments.style("display", "none");
+        dots.style("display", "block");
+      } else {
+        segments.style("display", "block");
+        dots.style("display", "none");
+      }
+    }
+    var zoom = d3.zoom()
+        .scaleExtent([1,30])
+        .translateExtent([[0,0],[width, height]])
+        .extent([[0,0], [width, height]])
+        .on("zoom", zoomed )
+
+    starting_pos.append("rect")
+    .attr("class","zoom-overlay")
+    .attr("width", width)
+    .attr("height", height)
+    .style("fill", "none")
+    .style("pointer-events", "all")
+    .call(zoom);
+    })                   
+</script>
+
+</body>
+</html>
