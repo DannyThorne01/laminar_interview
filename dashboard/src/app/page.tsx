@@ -1,53 +1,35 @@
 
 "use client"
-import LineChart from "@/components/linechart";
 import { useState, useEffect} from "react";
-import { parseData,exportLineChartData} from "@/lib/parseData";
-
-
-interface AggregatedData {
-  [key: string]: {
-    id: number;
-    tank_name: string;
-    date: string;
-    totalTimeSaved: number;
-    totalEnergySaved: number;
-    totalWaterSaved: number;
-    totalTime: number;
-    totalEnergy: number;
-    totalWater: number;
-  }
-}
-
-interface LineChartDataPoint {
-  tank: string
-  date: string, 
-  time_eff: number, 
-  energy_eff: number, 
-  water_eff: number
-}
-
-interface LineChartData {
-  [tankName: string]: LineChartDataPoint[];
-}
+import { parseData,exportLineChartData, exportBarChartData} from "@/lib/parseData";
+import { LineChartUI } from "@/components/LineChartUI";
+import { BarChartUI } from "@/components/BarChartUI";
+import { AggregatedData, RawLineChartDataPoint, RawBarChartData } from "@/lib/types"
 
 export default function Home() {
-  const [lineChartData, setLineChartData] = useState<LineChartData | null>(null);
+  const [lineChartData, setLineChartData] = useState< RawLineChartDataPoint[]>([]);
+  const [barChartData, setBarChartData] = useState< RawBarChartData>();
 
   useEffect(() => {
     fetch(`/example.json`)
       .then(res => res.json())
       .then(rawData => {
         const ogData: AggregatedData = parseData(rawData);
-        const lineChartData: LineChartData = exportLineChartData(ogData)
+        const lineChartData: RawLineChartDataPoint[] = Object.values(exportLineChartData(ogData)).flat()
+        const barChartData : RawBarChartData= exportBarChartData(ogData)
+        
         setLineChartData(lineChartData);
+        setBarChartData(barChartData);
       })
       .catch(err => console.error("Fetch Error:", err));
   }, []);
 
   return (
-    lineChartData ? 
-    (<LineChart linechartdata={lineChartData} />) : 
+    lineChartData && barChartData? 
+    <>
+      <LineChartUI linechartdata={lineChartData} />
+      <BarChartUI barchartdata ={barChartData}/>
+    </>: 
     (<div>Loading...</div>)
   );
 }
