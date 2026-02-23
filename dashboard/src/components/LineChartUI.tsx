@@ -15,7 +15,7 @@ export function LineChartUI(linechartdata: RawLineChartDataProps){
     } = context;
 
     const [dataForChart, setDataForChart] = useState<FinalLineChartRow[]>([]);
-    const [xAxisLabel,setXAxisLabel] = useState('DATE')
+    const [xAxisLabel,setXAxisLabel] = useState('Date-MM-DD')
     const [yAxisLabel,setYAxisLabel] = useState('')
   
     const filterData = useCallback(() => {
@@ -43,20 +43,6 @@ export function LineChartUI(linechartdata: RawLineChartDataProps){
     return (
       <>
       <LineChart lineChartData={dataForChart} multi={true} xAxisLabel={xAxisLabel} yAxisLabel={yAxisLabel}/>
-      <div style={{ color: "#111" }}>
-        <select
-          value={currMetric}
-          onChange={(event) =>
-            setCurrMetric(
-              event.target.value as "time_eff" | "energy_eff" | "water_eff"
-            )
-          }
-        >
-          <option value="time_eff">Time Efficiency</option>
-          <option value="energy_eff">Energy Efficiency</option>
-          <option value="water_eff">Water Efficiency</option>
-        </select>
-      </div>
       </>
     )
 }

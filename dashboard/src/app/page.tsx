@@ -4,6 +4,7 @@ import { useState, useEffect} from "react";
 import { parseData,exportLineChartData, exportBarChartData} from "@/lib/parseData";
 import { LineChartUI } from "@/components/LineChartUI";
 import { BarChartUI } from "@/components/BarChartUI";
+import ButtonUI from "@/components/ButtonUI";
 import { AggregatedData, RawLineChartDataPoint, RawBarChartData } from "@/lib/types"
 
 export default function Home() {
@@ -27,8 +28,16 @@ export default function Home() {
   return (
     lineChartData && barChartData? 
     <>
-      <LineChartUI linechartdata={lineChartData} />
-      <BarChartUI barchartdata ={barChartData}/>
+    <div className = "flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap md:flex-row w-full border border-gray-200 rounded-xl bg-gray-100 shadow-sm">
+        <div className="w-full md:basis-2/3 min-w-0"><LineChartUI linechartdata={lineChartData} /></div>
+      <div className="w-full md: basis-1/3 min-w-0 "><BarChartUI barchartdata ={barChartData}/></div>  
+      </div>
+      <div className="border border-gray-100 rounded-xl bg-gray-100 shadow-sm">
+            <ButtonUI></ButtonUI>
+      </div>
+
+    </div>
     </>: 
     (<div>Loading...</div>)
   );

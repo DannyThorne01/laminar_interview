@@ -8,17 +8,18 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
 {
   const data = barChartData;
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   useEffect(()=>{
-    if (!data.length || !svgRef.current) return;
-        const margin = { top: 20, right: 5, bottom: 50, left: 100 };
-        const width = 400 - margin.left - margin.right;
-        const height = 350 - margin.top - margin.bottom;
-    
+    if (!data.length || !svgRef.current || !containerRef.current) return;
+        const margin = { top: 20, right: 100, bottom: 50, left: 100 };
+        const width =  containerRef.current.clientWidth  - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
         const svg = d3.select(svgRef.current);
         svg.selectAll("*").remove();
         const g = svg.append("g")
           .attr("transform", `translate(${margin.left},${margin.top})`);
-
+       svg.attr("width", containerRef.current.clientWidth)  
+        .attr("height", 450);
         const groups = Array.from(new Set(data.map(d => d.xAxis)))
         const subgroups_set = new Set<string>()
         const yDomain : number []= []
@@ -66,13 +67,22 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
             .attr("font-size", 12);
 
         g.append("text")
-        .attr('x', width/3)
+        .attr('x', width/2)
         .attr('y', height + margin.bottom-10)
+        .attr('text-anchor', 'middle')
+        .attr("fill", "#494949")
+        .attr("font-size", 15)
+        .attr("font-weight", "bold")
         .text(xAxisLabel)
+        
         g.append("text")
         .attr("transform", `rotate(-90)`)
         .attr("y", 0 - margin.left + 30)
-        .attr("x", 0 - (height/1.2))
+        .attr("x", 0 -(height / 2))
+        .attr('text-anchor', 'middle')
+        .attr("fill", "#494949")
+        .attr("font-size", 15)
+        .attr("font-weight", "bold")
         .text(yAxisLabel)
 
         const barWidth = xScale.bandwidth() * 0.5;
@@ -90,6 +100,9 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
           .append("rect")
           .attr("x", d => xScale((d.data as any ).xAxis)! + barOffset)
           .attr("y", d => yScale(d[1]))
+          .attr("opacity", 0.85)
+          .attr("rx", 3)         
+          .attr("ry", 3)
           .attr("height", d => yScale(d[0]) - yScale(d[1]))
           .attr("width", barWidth)
 
@@ -97,7 +110,7 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
         .data(subgroups)
         .enter()
         .append("circle")
-        .attr("cx", width + margin.right)
+        .attr("cx", width )
         .attr("cy", (_,i) =>  100 + i*25) 
         .attr("r", 6)
         .style("fill", d =>colourScale(d))
@@ -106,7 +119,7 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
         .data(subgroups)
         .enter()
         .append("text")
-          .attr("x", width + margin.right+20)
+          .attr("x", width+10)
           .attr("y", (_,i) =>  100 + i*25) 
           .style("fill", d =>colourScale(d))
           .text(d=>d)
@@ -114,8 +127,8 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
           .style("alignment-baseline", "middle")
       }, [data]);
   return (
-    <div>
-      <svg ref={svgRef} style={{ width: "70%", height: 380 }}></svg>
+     <div ref={containerRef} style={{ width: "100%" }}>
+      <svg ref={svgRef}></svg>
     </div>
   )
 }

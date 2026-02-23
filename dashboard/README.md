@@ -1,4 +1,4 @@
-## Update #3
+## Update #4
 
 Project Structure 
 
@@ -13,6 +13,7 @@ Project Structure
       /linechart.tsx - View Model to display chart
       /BarChartUI.tsx - Data processing for the barchart.tsx
       /barchart.tsx - View Model to display chart
+      /RangeSlider.tsx - Slider component to assist with Date Range Filter
     /lib
       parseData.ts - Logic for parsing data for both charts
       types.ts - store for all the types used in project
@@ -21,9 +22,8 @@ Project Structure
 ```
 
 Architecture Decisions 
- - Decoupled the Data Processing and Data Vizualisation mainly for modularity. Components like linechart.tsx and barchart.tsx can be reused for other parts of. the dashboard if necessary and they would be independent of the data provided. LineChartUI and BarChartUI are responsible for shaping the data in a format acceptable by the respective view models.
- - Implemented a Context Provider for global state management, so that each of my ChartProcessing components (LineChartUI, BarChartUI) can process the data into chart-ready data structures. 
- - Added types.ts for a store of all my types and interfaces used.
+ - This update invloved adding more UI components like sliders and buttons for the filters. Not much architectural changes here. 
+ - For my next update I do plan to work on optimization. I think at this point I have a working dashboard with two charts that can display metrics like Average Efficiency and Cumulative Totals, now I'm working on error handling, and optimization methods as I continue to test and develop the dashboard.
 
 
  

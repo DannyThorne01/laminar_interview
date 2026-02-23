@@ -6,15 +6,17 @@ import { FinalLineChartProps, FinalLineChartRow } from "@/lib/types";
 export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}: FinalLineChartProps) {
   const data = lineChartData;
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!data.length || !svgRef.current) return;
-    const margin = { top: 40, right: 5, bottom: 50, left: 80 };
-    const width = 650 - margin.left - margin.right;
+    if (!data.length || !svgRef.current || !containerRef.current) return;
+    const margin = { top: 40, right: 80, bottom: 50, left: 80 };
+    const width = containerRef.current.clientWidth - margin.left - margin.right -10;
     const height = 400 - margin.top - margin.bottom;
-
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
+    svg.attr("width", containerRef.current.clientWidth)  
+     .attr("height", 450);
     const g = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -50,12 +52,20 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
     g.append("text")
       .attr('x', width/2)
       .attr('y', height + margin.bottom+5)
+      .attr('text-anchor', 'middle')
+      .attr("fill", "#494949")
+      .attr("font-size", 15)
+      .attr("font-weight", "bold")
       .text(xAxisLabel)
 
     g.append("text")
       .attr("transform", `rotate(-90)`)
       .attr("y", 0 - margin.left + 40)
-      .attr("x", 0 - (height/1.3))
+      .attr("x", 0 - (height/2))
+      .attr('text-anchor', 'middle')
+      .attr("fill", "#494949")
+      .attr("font-size", 15)
+      .attr("font-weight", "bold")
       .text(yAxisLabel)
     
     const groups = Array.from(new Set(data.map(d => d.class)));
@@ -80,7 +90,7 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
       .append("path")
       .attr("fill","none")
       .attr("stroke", d=>colorScale(d.className))
-      .attr("stroke-width", "1")
+      .attr("stroke-width", "3")
       .attr("d", d=>line(d.points))
 
     g.selectAll("circle")
@@ -97,7 +107,7 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
       .data(groups)
       .enter()
       .append("text")
-        .attr("x", width + margin.right+20)
+        .attr("x", width+20 )
         .attr("y", (_,i) =>  100 + i*25) 
         .style("fill", d =>colorScale(d))
         .text(d=>d)
@@ -108,14 +118,14 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
       .data(groups)
       .enter()
       .append("circle")
-      .attr("cx", width + margin.right)
+      .attr("cx", width+10 )
       .attr("cy", (_,i) =>  100 + i*25) 
       .attr("r", 6)
       .style("fill", d =>colorScale(d))
   }, [data]);
   return (
-    <div>
-      <svg ref={svgRef} style={{ width: "80%", height: 500 }}></svg>
+    <div ref={containerRef} style={{ width: "100%" }}>
+      <svg ref={svgRef}></svg>
     </div>
   );
 }
