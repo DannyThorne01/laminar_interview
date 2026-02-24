@@ -1,7 +1,7 @@
 "use client";
-import { useState, useContext, useEffect, useCallback} from "react";
+import { useContext,useMemo} from "react";
 import { Context } from "@/lib/GlobalContext";
-import { RawBarChartProps, FinalBarChartRow} from "@/lib/types";
+import { RawBarChartProps, FinalBarChartRow, axisLabels} from "@/lib/types";
 import BarChart from "./barchart";
 
 export function BarChartUI({barchartdata}: RawBarChartProps){
@@ -13,54 +13,43 @@ export function BarChartUI({barchartdata}: RawBarChartProps){
       currMetric
     } = context;
 
-    const [dataForChart, setDataForChart] = useState<FinalBarChartRow[]>([]);
-    const [xAxisLabel,setXAxisLabel] = useState('Tank Number')
-    const [yAxisLabel,setYAxisLabel] = useState('')
+    const X_AXIS_LABEL = 'Tank Number';
+    const yAxisLabel = axisLabels[currMetric].barchart;
 
-
-    const filterData = useCallback(() => {
+    const dataForChart = useMemo(() => {
         const [startDate, endDate] = dateRange;
-        const data = barchartdata;
-        const result: FinalBarChartRow[]= []
+        const finalData: FinalBarChartRow[]= []
 
-        Object.entries(data).forEach(([tankName,tankAgg])=>{
+        Object.entries(barchartdata).forEach(([tankName,tankAgg])=>{
           const dateFilter = tankAgg.filter((point) => point.date >= startDate && point.date <= endDate)
- 
+         
           const length = dateFilter.length;
           if (length < 2) {
-            result.push({ xAxis: tankName, Used: 0,Saved: 0 });
+            finalData.push({ xAxis: tankName, Used: 0,Saved: 0 });
             return;
           }
+
           const saved = currMetric === 'time_eff'
-          ? dateFilter[length - 1].cumlTimeSaved - dateFilter[1].cumlTimeSaved
+          ? dateFilter[length - 1].cumlTimeSaved - dateFilter[0].cumlTimeSaved
           : currMetric === 'energy_eff'
-          ? dateFilter[length - 1].cumlEnergySaved - dateFilter[1].cumlEnergySaved
-          : dateFilter[length - 1].cumlWaterSaved - dateFilter[1].cumlWaterSaved;
+          ? dateFilter[length - 1].cumlEnergySaved - dateFilter[0].cumlEnergySaved
+          : dateFilter[length - 1].cumlWaterSaved - dateFilter[0].cumlWaterSaved;
 
           const used = currMetric === 'time_eff'
-            ? dateFilter[length - 1].cumlTime - dateFilter[1].cumlTime
-            : currMetric === 'energy_eff'
-            ? dateFilter[length - 1].cumlEnergy - dateFilter[1].cumlEnergy
-            : dateFilter[length - 1].cumlWater - dateFilter[1].cumlWater;
+          ? dateFilter[length - 1].cumlTime - dateFilter[0].cumlTime
+          : currMetric === 'energy_eff'
+          ? dateFilter[length - 1].cumlEnergy - dateFilter[0].cumlEnergy
+          : dateFilter[length - 1].cumlWater - dateFilter[0].cumlWater;
 
-        
-          const yAxisLabel = currMetric === 'time_eff' ? 'Cumulative Time in Seconds' :
-          currMetric === 'energy_eff' ? 'Cumulative Energy in Kilowatt hours' : 'Cumualtive Water in Gallons'
-          setYAxisLabel(yAxisLabel);
-
-          const tankData:FinalBarChartRow= {
-            xAxis: tankName, Used:used, Saved:saved}
-          result.push(tankData)
+            const tankData:FinalBarChartRow= {
+              xAxis: tankName, Used:used, Saved:saved}
+            finalData.push(tankData)
         })
-        setDataForChart(result);
-      }, [barchartdata, currTanks, dateRange, currMetric]);
-
-    useEffect(() => {
-    filterData();
-    }, [filterData]);
+       return finalData
+      }, [barchartdata, dateRange, currMetric]);
     return(
       <>
-      <BarChart barChartData={dataForChart} xAxisLabel={xAxisLabel} yAxisLabel={yAxisLabel}></BarChart>
+      <BarChart barChartData={dataForChart} xAxisLabel={X_AXIS_LABEL} yAxisLabel={yAxisLabel}></BarChart>
       </>
     );
   }

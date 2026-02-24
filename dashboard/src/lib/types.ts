@@ -45,7 +45,20 @@ export interface FinalBarChartProps{
   yAxisLabel:string
 }
 
+export interface ButtonUIProps{
+  itemList: string[]
+}
+
 export type Metrics = 'time_eff' | 'energy_eff' | 'water_eff';
+
+export const axisLabels = {
+  'time_eff' : {linechart: 'Daily Time Efficiency %',
+                barchart: 'Cumulative Time in Seconds'}, 
+  'energy_eff' : {linechart:'Daily Energy Efficiency %', 
+                  barchart:'Cumulative Energy in Kilowatt hours'},
+  'water_eff' : {linechart:'Daily Water Efficiency %', 
+                  barchart:'Cumualtive Water in Gallons' }
+} as const
 
 export interface DataPoint {
   start_time: string | any[]; 
@@ -58,7 +71,6 @@ export interface DataPoint {
 
 export interface AggregatedData {
   [key: string]: {
-    id: number;
     tank_name: string;
     date: string;
     totalTimeSaved: number;

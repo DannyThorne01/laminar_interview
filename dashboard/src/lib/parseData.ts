@@ -6,10 +6,8 @@ export function parseData (data:any){
     const dateStr= datapoint.start_time.slice(0, 10);
     const tank = datapoint.tank_name;
     const key = `${tank}-${dateStr}`;
-
     if (!byDayTank[key]){
       const entry = {
-        id:0,
         tank_name: tank ,
         date: dateStr as string,
         totalTimeSaved :0, 
@@ -32,6 +30,10 @@ export function parseData (data:any){
   })
 return byDayTank;
 }
+export function extractUniqueDates(data: AggregatedData){
+  let dates= Array.from(new Set((Object.values(data).map((d)=> d.date)))).sort()
+  return dates
+}
 export function exportLineChartData(data : AggregatedData){
   let linechart :RawLineChartData ={}
   Object.values(data).forEach(datapoint=>{
@@ -39,17 +41,17 @@ export function exportLineChartData(data : AggregatedData){
       linechart[datapoint.tank_name] = [{
       tank:datapoint.tank_name,
       date:datapoint.date,
-      time_eff: datapoint.totalTimeSaved *100 / datapoint.totalTime + datapoint.totalTimeSaved,
-      energy_eff: datapoint.totalEnergySaved *100 / datapoint.totalEnergy + datapoint.totalEnergySaved,
-      water_eff: datapoint.totalWaterSaved *100 / datapoint.totalWater + datapoint.totalWaterSaved
+      time_eff: datapoint.totalTimeSaved *100 / (datapoint.totalTime + datapoint.totalTimeSaved),
+      energy_eff: datapoint.totalEnergySaved *100 / (datapoint.totalEnergy + datapoint.totalEnergySaved),
+      water_eff: datapoint.totalWaterSaved *100 / (datapoint.totalWater + datapoint.totalWaterSaved)
     }] 
     }else{
       linechart[datapoint.tank_name].push({
       tank:datapoint.tank_name,
       date:datapoint.date,
-      time_eff: datapoint.totalTimeSaved *100 / datapoint.totalTime + datapoint.totalTimeSaved,
-      energy_eff: datapoint.totalEnergySaved *100 / datapoint.totalEnergy + datapoint.totalEnergySaved,
-      water_eff: datapoint.totalWaterSaved *100 / datapoint.totalWater + datapoint.totalWaterSaved
+      time_eff: datapoint.totalTimeSaved *100 / (datapoint.totalTime + datapoint.totalTimeSaved),
+      energy_eff: datapoint.totalEnergySaved *100 / (datapoint.totalEnergy + datapoint.totalEnergySaved),
+      water_eff: datapoint.totalWaterSaved *100 / (datapoint.totalWater + datapoint.totalWaterSaved)
     })
     }
   })
@@ -61,7 +63,6 @@ export function exportBarChartData(data : AggregatedData){
     a.date.localeCompare(b.date)
   );
   sortedRows.forEach((point)=>{
-
     if (!barChartData[point.tank_name]){
       barChartData[point.tank_name] = [{
       date:point.date,
@@ -87,5 +88,10 @@ export function exportBarChartData(data : AggregatedData){
     barChartData[point.tank_name].push(entry)
     barChartData[point.tank_name][0] = entry
   })
+
+  // I removed the accumulator at the end
+  Object.keys(barChartData).forEach(tankName => {
+    barChartData[tankName].shift();
+  });
   return barChartData
 }

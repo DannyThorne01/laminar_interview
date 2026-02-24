@@ -15,6 +15,7 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
     const height = 400 - margin.top - margin.bottom;
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
+
     svg.attr("width", containerRef.current.clientWidth)  
      .attr("height", 450);
     const g = svg.append("g")
@@ -37,6 +38,7 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
       .call(xAxis);
     gx.selectAll("path, line")
       .attr("stroke", "#111")
+      .attr("stroke-width", "2")
     gx.selectAll("text")
       .attr("fill", "#111")
       .attr("font-size", 12);
@@ -45,6 +47,7 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
       .call(yAxis)
     gy.selectAll("path, line")
       .attr("stroke", "#111")
+      .attr("stroke-width", "2")
     gy.selectAll("text")
       .attr("fill", "#111")
       .attr("font-size", 12);
@@ -68,8 +71,8 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
       .attr("font-weight", "bold")
       .text(yAxisLabel)
     
-    const groups = Array.from(new Set(data.map(d => d.class)));
-    const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(groups);
+    const groups = Array.from(new Set(data.map(d => d.class))).sort();
+    const colorScale = d3.scaleOrdinal(d3.schemeDark2).domain(['Tank 1', 'Tank 2', 'Tank 3', 'Tank 4']);
 
     const line = d3.line<FinalLineChartRow>()
     .defined(d=>!isNaN(d.value))
@@ -92,6 +95,31 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
       .attr("stroke", d=>colorScale(d.className))
       .attr("stroke-width", "3")
       .attr("d", d=>line(d.points))
+      
+    
+    const tooltip = d3.select("body")
+    .append("div")
+    .style("opacity", 0)
+    .style("position", "absolute")
+    .style("background-color", "white")
+    .style("border-radius", "5px")
+    .style("padding", "5px")
+    .style("z-index", "9999")
+    
+    var mousemove = (event: { pageX: number; pageY: number; }, d: { class: any; timePeriod: any; value: number; }) => {
+    tooltip
+    .html(
+      `<div style="color: black;">
+        <strong>Tank:</strong> ${d.class} <br/>
+        <strong>Date:</strong> ${d.timePeriod} <br/>
+        <strong>Value:</strong> ${Math.round(d.value)}%
+      </div>`
+    )
+    .style("left", `${event.pageX + 10}px`)
+    .style("top", `${event.pageY + 10}px`);
+    };
+    var mouseover = (()=>tooltip.style("opacity",1))
+    var mouseleave = (()=>  tooltip.style("opacity", 0))
 
     g.selectAll("circle")
       .data(data)
@@ -101,7 +129,10 @@ export default function LineChart({lineChartData, multi, xAxisLabel, yAxisLabel}
       .attr("cy", d => yScale(d.value))
       .attr("r", 4)
       .attr("fill", d => colorScale(d.class))
-      .attr("opacity", 0.7);g.selectAll("mydots")
+      .attr("opacity", 0.7)
+      .on("mouseover", mouseover)
+      .on("mousemove", mousemove)
+      .on("mouseleave", mouseleave)
 
     g.selectAll("mylabels")
       .data(groups)

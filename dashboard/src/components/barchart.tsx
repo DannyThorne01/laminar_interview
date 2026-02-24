@@ -18,9 +18,9 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
         svg.selectAll("*").remove();
         const g = svg.append("g")
           .attr("transform", `translate(${margin.left},${margin.top})`);
-       svg.attr("width", containerRef.current.clientWidth)  
-        .attr("height", 450);
-        const groups = Array.from(new Set(data.map(d => d.xAxis)))
+        svg.attr("width", containerRef.current.clientWidth)  
+          .attr("height", 450);
+        const groups = Array.from(new Set(data.map(d => d.xAxis))).sort()
         const subgroups_set = new Set<string>()
         const yDomain : number []= []
         data.forEach((point)=>{
@@ -31,7 +31,7 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
             if (typeof point[f_key]  === 'number'){
               totalStackHeight = point[f_key] + totalStackHeight + 500
             }
-            })
+          })
           yDomain.push(totalStackHeight)
         })
         const subgroups:string[] = Array.from(subgroups_set)
@@ -53,7 +53,8 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
           .attr("transform", `translate(0,${height})`)
           .call(xAxis);
           gx.selectAll("path, line")
-          .attr("stroke", "#111")
+          .attr("stroke", "#787777")
+          .attr("stroke-width", "1")
           gx.selectAll("text")
             .attr("fill", "#111")
             .attr("font-size", 12);
@@ -61,19 +62,20 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
         const gy = g.append("g")
             .call(yAxis)
           gy.selectAll("path, line")
-            .attr("stroke", "#111")
+            .attr("stroke", "#787777")
+            .attr("stroke-width", "1")
           gy.selectAll("text")
             .attr("fill", "#111")
             .attr("font-size", 12);
 
         g.append("text")
-        .attr('x', width/2)
-        .attr('y', height + margin.bottom-10)
-        .attr('text-anchor', 'middle')
-        .attr("fill", "#494949")
-        .attr("font-size", 15)
-        .attr("font-weight", "bold")
-        .text(xAxisLabel)
+          .attr('x', width/2)
+          .attr('y', height + margin.bottom-10)
+          .attr('text-anchor', 'middle')
+          .attr("fill", "#494949")
+          .attr("font-size", 15)
+          .attr("font-weight", "bold")
+          .text(xAxisLabel)
         
         g.append("text")
         .attr("transform", `rotate(-90)`)
@@ -85,6 +87,33 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
         .attr("font-weight", "bold")
         .text(yAxisLabel)
 
+
+        d3.select("body").selectAll(".tooltip").remove();
+        const tooltip = d3.select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0)
+        .style("position", "absolute")
+        .style("background-color", "white")
+        .style("border-radius", "5px")
+        .style("padding", "5px")
+        .style("z-index", "9999")
+            
+        var mousemove = (event:any,d:any) => {
+        tooltip
+        .html(
+          `<div style="color: black;">
+            <strong>Tank:</strong> ${d.data.xAxis} <br/>
+            <strong>Used:</strong> ${d.data.Used} <br/>
+            <strong>Saved:</strong> ${d.data.Saved}
+          </div>`
+        )
+          .style("left", `${event.pageX + 10}px`)
+          .style("top", `${event.pageY + 10}px`);
+          };
+          var mouseover = (()=>tooltip.style("opacity",1))
+          var mouseleave = (()=>  tooltip.style("opacity", 0))
+
         const barWidth = xScale.bandwidth() * 0.5;
         const barOffset = (xScale.bandwidth() - barWidth) / 2
         const bars = g.append("g")
@@ -93,7 +122,6 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
           .enter()
           .append("g")
           .attr("fill", d => colourScale(d.key) as string);
-
         bars.selectAll("rect")
           .data(d=>d)
           .enter()
@@ -101,10 +129,13 @@ export default function BarChart({barChartData, xAxisLabel, yAxisLabel}: FinalBa
           .attr("x", d => xScale((d.data as any ).xAxis)! + barOffset)
           .attr("y", d => yScale(d[1]))
           .attr("opacity", 0.85)
-          .attr("rx", 3)         
-          .attr("ry", 3)
+          .attr("rx", 2)         
+          .attr("ry", 2)
           .attr("height", d => yScale(d[0]) - yScale(d[1]))
           .attr("width", barWidth)
+          .on("mouseover", mouseover)
+          .on("mousemove", mousemove)
+          .on("mouseleave", mouseleave)
 
         g.selectAll("mydots")
         .data(subgroups)

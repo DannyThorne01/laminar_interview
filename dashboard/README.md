@@ -1,29 +1,37 @@
-## Update #4
+## Update #5
 
 Project Structure 
 
 ```bash
-/dashboard - the next project
-  /src- 
+/dashboard
+  /src
     /app
-      layout.tsx - wrapper for my main page
-      page.tsx - main page where the final UI will be. Right now it only has the components were  built so far
-    /components - UI components like charts, or graphs etc
-      /LineChartUI.tsx - Data processing for the linechart.tsx
-      /linechart.tsx - View Model to display chart
-      /BarChartUI.tsx - Data processing for the barchart.tsx
-      /barchart.tsx - View Model to display chart
-      /RangeSlider.tsx - Slider component to assist with Date Range Filter
+      layout.tsx         # Root layout wrapper
+      page.tsx           # Main dashboard page (data fetching + orchestration)
+
+    /components
+      LineChartUI.tsx    # Data transformation logic for line chart
+      linechart.tsx      # Presentational line chart (View Model)
+      BarChartUI.tsx     # Data transformation logic for bar chart
+      barchart.tsx       # Presentational bar chart (View Model)
+      RangeSlider.tsx    # Date range filtering component
+      ButtonUI.tsx       # Dynamic selector component
+      NavBar.tsx         # Top navigation bar
+
     /lib
-      parseData.ts - Logic for parsing data for both charts
-      types.ts - store for all the types used in project
-      GlobalContext.tsx - global state management for filters on dashboard
-      GlobalProvider.tsx - wrapper of GlobalContext.tsx. Think of it as like a vehicle which provides state variables to each component in /src/components.
+      parseData.ts       # Data parsing and transformation utilities
+      types.ts           # Shared TypeScript types
+      GlobalContext.tsx  # React context definition
+      GlobalProvider.tsx # Context provider for global dashboard state
 ```
 
-Architecture Decisions 
- - This update invloved adding more UI components like sliders and buttons for the filters. Not much architectural changes here. 
- - For my next update I do plan to work on optimization. I think at this point I have a working dashboard with two charts that can display metrics like Average Efficiency and Cumulative Totals, now I'm working on error handling, and optimization methods as I continue to test and develop the dashboard.
+Architecture Decisions and Updates:
+ - This update involves improving data collection and processing under "production" settings. For my data fetching in `/src/app/page.tsx` ideally I would have a `/src/app/api/dashboard/routes.ts` server file which would fetch my data from a database and handle any errors. However in this take-home for simplicity, I implemeted my fetch in the frontend component with a `useEffect` and handled errors either produced from data fetching or processing the data for my charts.
+ - In LineChartsUI.tsx and BarChartsUI.tsx I'm now using `useMemo` to cache the `dataForChart` prevent constant re-processing.
+ - The ButtonUI.tsx component now accepts an `itemList` prop to dynamically create the range sliders. Before I fixed the itemList as a DATES array.
+ - linechart.tsx and barchart.tsx now have tooltips so the user can hover over a point or a bar and see the values associated with that entity. Also I added `containerRef` to these charts to manage the size and space.
+ - NavBar.tsx implemented for aesthetic reasons.
+
 
 
  
