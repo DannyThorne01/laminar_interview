@@ -1,10 +1,11 @@
 "use client";
 import { useContext, useMemo } from "react";
 import { Context } from "@/lib/GlobalContext";
-import LineChart from "./linechart";
-import { FinalLineChartRow, RawLineChartDataPoint,RawLineChartDataProps, axisLabels } from "@/lib/types";
+import LineChart from "./charts/linechart";
+import { FinalLineChartRow, RawLineChartDataPoint,RawLineChartData } from "@/lib/types";
+import { axisLabels } from "@/lib/consts";
 
-export function LineChartUI({linechartdata}: RawLineChartDataProps){
+export function LineChartUI({linechartdata}: RawLineChartData){
     const context = useContext(Context);
     if (!context) throw new Error("LineChartUI must be used inside GlobalProvider");
     const {
@@ -17,6 +18,7 @@ export function LineChartUI({linechartdata}: RawLineChartDataProps){
     const dataForChart = useMemo(() => {
         const [startDate, endDate] = dateRange;
         const tankSet = new Set(currTanks)
+        const filteredTanks = Object.entries(linechartdata).filter(([tankName,tankAgg]) => tankSet.has)
         const processedData =linechartdata
                         .filter((point)=>tankSet.has(point.tank))
                         .filter((point) => point.date >= startDate && point.date <= endDate)

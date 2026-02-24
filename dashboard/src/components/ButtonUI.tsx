@@ -2,7 +2,7 @@
 import { useState, useContext, useEffect, useCallback } from "react";
 import { Context } from "@/lib/GlobalContext";
 import { ButtonUIProps, Metrics } from "@/lib/types";
-import { RangeSlider } from "./RangeSlider";
+import { RangeSlider } from "./ui/RangeSlider";
 
 export default function ButtonUI({itemList}:ButtonUIProps){
   const context = useContext(Context);
@@ -15,10 +15,11 @@ export default function ButtonUI({itemList}:ButtonUIProps){
     setDateRange
   } = context;
   const tankOptions = ["Tank 1", "Tank 2", "Tank 3", "Tank 4"];
+
   const toggleTanks = useCallback((tank:string)=>{
-  let entry = currTanks.includes(tank) ? 
+  let entry = currTanks.includes(tank)? 
                 currTanks.filter((currTank) =>currTank!== tank) : [...currTanks,tank]
-    setCurrTanks(entry )
+    setCurrTanks(entry)
   },[currTanks])
 
   return(

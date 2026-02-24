@@ -6,7 +6,7 @@ import { Context } from "@/lib/GlobalContext";
 import { LineChartUI } from "@/components/LineChartUI";
 import { BarChartUI } from "@/components/BarChartUI";
 import ButtonUI from "@/components/ButtonUI";
-import StatusMessage from "@/components/StatusMessage";
+import StatusMessage from "@/components/ui/StatusMessage";
 
 import { parseData,exportLineChartData, exportBarChartData, extractUniqueDates} from "@/lib/parseData";
 import { AggregatedData, RawLineChartDataPoint, RawBarChartData } from "@/lib/types"
@@ -15,7 +15,6 @@ export default function Home() {
   const context = useContext(Context);
       if (!context) throw new Error("LineChartUI must be used inside GlobalProvider");
       const {
-        dateRange,
         setDateRange
       } = context;
   const [lineChartData, setLineChartData] = useState< RawLineChartDataPoint[]>([]);

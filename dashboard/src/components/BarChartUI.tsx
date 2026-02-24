@@ -1,15 +1,15 @@
 "use client";
+import BarChart from "./charts/barchart";
 import { useContext,useMemo} from "react";
 import { Context } from "@/lib/GlobalContext";
-import { RawBarChartProps, FinalBarChartRow, axisLabels} from "@/lib/types";
-import BarChart from "./barchart";
+import { RawBarChartProps, FinalBarChartRow} from "@/lib/types";
+import { axisLabels } from "@/lib/consts";
 
 export function BarChartUI({barchartdata}: RawBarChartProps){
     const context = useContext(Context);
     if (!context) throw new Error("LineChartUI must be used inside GlobalProvider");
     const {
       dateRange,
-      currTanks,
       currMetric
     } = context;
 
@@ -25,7 +25,7 @@ export function BarChartUI({barchartdata}: RawBarChartProps){
          
           const length = dateFilter.length;
           if (length < 2) {
-            finalData.push({ xAxis: tankName, Used: 0,Saved: 0 });
+            finalData.push({ category: tankName, Used: 0,Saved: 0 });
             return;
           }
 
@@ -41,9 +41,9 @@ export function BarChartUI({barchartdata}: RawBarChartProps){
           ? dateFilter[length - 1].cumlEnergy - dateFilter[0].cumlEnergy
           : dateFilter[length - 1].cumlWater - dateFilter[0].cumlWater;
 
-            const tankData:FinalBarChartRow= {
-              xAxis: tankName, Used:used, Saved:saved}
-            finalData.push(tankData)
+          const tankData:FinalBarChartRow= {category: tankName, 
+                                            Used:used, Saved:saved}
+          finalData.push(tankData)
         })
        return finalData
       }, [barchartdata, dateRange, currMetric]);

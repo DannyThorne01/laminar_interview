@@ -13,15 +13,14 @@ export interface RawLineChartDataProps{
 }
 export type FinalLineChartRow = 
 {class:string, timePeriod:string, value:number}
+
 export interface FinalLineChartProps{
   lineChartData:FinalLineChartRow[]
   multi: boolean
   xAxisLabel: string;
   yAxisLabel:string
 }
-
-export interface RawBarChartData{
-  [tankName:string]: [{
+export interface RawBarChartDataPoint{
     date:string|any,
     tank_name:string,
     cumlTimeSaved: number;
@@ -30,35 +29,29 @@ export interface RawBarChartData{
     cumlTime: number;
     cumlEnergy: number;
     cumlWater: number;
-  }]
+  
+}
+export interface RawBarChartData{
+  [tankName:string]: RawBarChartDataPoint[]
 }
 export interface RawBarChartProps{
     barchartdata : RawBarChartData
 }
 export interface FinalBarChartRow{
-  xAxis:string;
-  [yKeys:string]:number | string;
+  category:string;
+  [seriesKeys:string]:number | string;
 }
 export interface FinalBarChartProps{
   barChartData:FinalBarChartRow[]
   xAxisLabel: string;
   yAxisLabel:string
 }
-
 export interface ButtonUIProps{
   itemList: string[]
 }
-
 export type Metrics = 'time_eff' | 'energy_eff' | 'water_eff';
 
-export const axisLabels = {
-  'time_eff' : {linechart: 'Daily Time Efficiency %',
-                barchart: 'Cumulative Time in Seconds'}, 
-  'energy_eff' : {linechart:'Daily Energy Efficiency %', 
-                  barchart:'Cumulative Energy in Kilowatt hours'},
-  'water_eff' : {linechart:'Daily Water Efficiency %', 
-                  barchart:'Cumualtive Water in Gallons' }
-} as const
+
 
 export interface DataPoint {
   start_time: string | any[]; 

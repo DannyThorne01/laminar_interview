@@ -10,4 +10,4 @@ export type GlobalContext ={
     currMetric : Metrics
     setCurrMetric : SetState<Metrics>
 }
-export const Context = createContext<GlobalContext | undefined>(undefined);
+export const Context = createContext<GlobalContext | null>(null);
