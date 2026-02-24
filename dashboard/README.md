@@ -33,6 +33,12 @@
       GlobalContext.tsx  # React context definition
       GlobalProvider.tsx # Context provider for global dashboard state
 ```
+# Description of the Two Graphs
+1. Line-graph showing Metric Efficiency over the period of days. I calculated efficiency as:
+  `total<metric_type>Saved * 100 / (total<metric_type>Saved + total<metric_type>` and I chose this index because it normalizes performance and makes it easier to compare how Laminar's tech has brought about improvements over time.
+2. Stacked Bar-Graph showing Cumulative Metric Usage for each tank. Here I show the 'Cumulative Amount of Metric Saved' stacked ontop Cumulative Amount of Metric Used' for comparision. This is intended to be a secondary to the line-graph highlighting which tanks consume the most and how much of that is offet by savings.
+
+NOTE: These graphs show info WITHIN the specific time-period set in the 'Tank Controls'. 
 
 # Technical and Architecture Choices: 
 
