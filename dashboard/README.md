@@ -6,6 +6,24 @@
 # Solution 
   I built a Next.js + D3 dashboard that parses and aggregates the raw cycle data into daily, tank-level metrics. The UI displays high-level KPIs and includes interactive line/bar charts to show efficiency and savings over time. Users can filter results by custom date range and selected tanks via shared global state, and the charts update instantly to reflect the chosen metric and filters.
 
+# How to run my code
+```bash 
+
+python -m venv myvenv
+source myvenv/bin/activate
+
+# Navigate to the project directory
+cd dashboard
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+```
+
+
 # Project Structure 
 
 ```bash
@@ -77,6 +95,8 @@ Currently, data fetching occurs on my frontend because the dataset lives in `/ex
 - Duplicate D3 Elements : Both of my charts have duplicate elements, so I would pull those elements into a shared library reducing the copy-paste code from the charts.
 
 - Unit Testing Data Pipeline: Using Jest and some mock datasets, I would test each function in `/src/lib/parseData.tsx` to verify they're supplying the correct data to view models. 
+
+
 
 
  Deployments: https://laminar-interview.vercel.app/
